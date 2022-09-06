@@ -155,7 +155,7 @@ jobs:
           command: |
             apk add --update ansible tar gzip
             wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
-            unzip -d awscli-bundle.zip
+            unzip awscli-bundle.zip
             python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
 
       - run:
