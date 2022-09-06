@@ -1,5 +1,5 @@
 - name: Update all packages to their latest version
-  ansible.builtin.apt:
+  apt:
     name: "*"
     state: latest
 
@@ -17,12 +17,13 @@
   apt:
     name: "python3"
     state: present
+    update_cache: yes
 
 - name: Install nodejs
   apt:
-    update_cache: yes
     name: "nodejs"
     state: present
+    update_cache: yes
 
 - name: Install npm
   apt:
