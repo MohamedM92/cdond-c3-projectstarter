@@ -327,7 +327,7 @@ jobs:
               if curl -s ${URL} | grep "Welcome"
               then
                   # Change this to 0 after the job fails
-                return 1
+                return 0
               else
                 return 1
               fi
@@ -335,6 +335,28 @@ jobs:
       - revert-migrations: 
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
+
+  cloudfront-update:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible curl nodejs npm
+            wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
+      # Here's where you will add some code to rollback on failure  
 
 workflows:
   default:
