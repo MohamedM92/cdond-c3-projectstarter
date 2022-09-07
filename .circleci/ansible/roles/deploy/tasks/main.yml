@@ -3,9 +3,14 @@
     path: ~/backend-deploy
     state: directory
 
+- name: Extract files
+  become: true
+  unarchive:
+    src: files/artifact.tar.gz
+    dest: ~/backend-deploy
+
 - name: Deploy
   shell: |
-    tar -xf ~/artifact.tar.gz -C ~/backend-deploy
     cd ~/backend-deploy
     npm install
     pm2 stop default
