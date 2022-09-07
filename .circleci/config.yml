@@ -274,6 +274,48 @@ jobs:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
+  smoke-test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible curl nodejs npm
+            wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+      - run:
+          name: Get backend url
+          command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Backend smoke test.
+          command: |
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+              echo ${URL} 
+              if curl -s ${URL} | grep "Welcome"
+              then
+                  # Change this to 0 after the job fails
+                return 0
+              else
+                return 1
+              fi
+      # Here's where you will add some code to rollback on failure 
+      - revert-migrations: 
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
 
 workflows:
   default:
@@ -298,3 +340,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
