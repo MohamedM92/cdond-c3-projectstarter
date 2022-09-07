@@ -6,7 +6,7 @@
 - name: Extract actifact
   unarchive:
     become: true
-    src: ~/artifact.tar.gz
+    src: ~/project/artifact.tar.gz
     dest: ~/backend-deploy
 
 - name: Deploy
