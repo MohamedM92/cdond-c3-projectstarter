@@ -4,7 +4,6 @@
     state: directory
 
 - name: Extract files
-  become: true
   unarchive:
     src: files/artifact.tar.gz
     dest: ~/backend-deploy
