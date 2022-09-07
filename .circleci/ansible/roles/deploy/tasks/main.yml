@@ -5,7 +5,7 @@
 
 - name: Deploy
   shell: |
-    tar -xf ~/archive.tar.gz -C ~/backend-deploy
+    tar -xf ~/artifact.tar.gz -C ~/backend-deploy
     cd ~/backend-deploy
     npm install
     pm2 stop default
