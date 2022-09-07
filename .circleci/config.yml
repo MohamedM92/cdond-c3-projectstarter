@@ -241,6 +241,40 @@ jobs:
           workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
+  deploy-backend:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["60:64:f2:c2:55:54:23:1a:3e:32:c4:7e:81:cd:df:f5"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible tar gzip nodejs npm
+            wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+            unzip awscli-bundle.zip
+            python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations: 
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
+
+
 workflows:
   default:
     jobs:
@@ -261,4 +295,6 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
