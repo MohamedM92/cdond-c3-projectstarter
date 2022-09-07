@@ -3,14 +3,9 @@
     path: ~/backend-deploy
     state: directory
 
-- name: Extract actifact
-  unarchive:
-    become: true
-    src: ~/project/artifact.tar.gz
-    dest: ~/backend-deploy
-
 - name: Deploy
   shell: |
+    tar -xf ~/archive.tar.gz -C ~/backend-deploy
     cd ~/backend-deploy
     npm install
     pm2 stop default
