@@ -297,6 +297,7 @@ jobs:
       - image: alpine:latest
     steps:
       - checkout
+
       - run:
           name: Install dependencies
           command: |
@@ -341,6 +342,8 @@ jobs:
       - image: alpine:latest
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -351,15 +354,16 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            export OLDWFID=$(aws cloudformation \
+            export OldWorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)           
+              --no-paginate --output text)  
+            echo $OldWorkflowID > ~/OldWorkflowID.txt
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
-            echo OldWorkFLowID: "${OLDWFID}"
+            echo OldWorkFLowID: "${OldWorkflowID}"
             echo CurrentWorkFlowID: "{$CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
       - revert-migrations: 
