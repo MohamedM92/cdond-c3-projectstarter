@@ -376,15 +376,19 @@ jobs:
 
   cleanup:
       docker:
-      - image: amazon/aws-cli
+      - image: ubuntu/latest
       steps:
         - checkout
-        - attach_workspace:
-            at: ~/
         - run:
             name: Install dependencies
             command: |
-              yum -y install tar gzip
+              apt update
+              apt -y install python3 wget unzip python3-venv
+              wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
+              unzip awscli-bundle.zip
+              python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+        - attach_workspace:
+            at: ~/
         - run:
             name: Get old stack workflow id
             command: |
