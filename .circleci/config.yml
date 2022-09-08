@@ -384,20 +384,21 @@ jobs:
         - run:
             name: Install dependencies
             command: |
-              apk add --update python3
+              apk add --update python3 bash
               wget "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip"
               unzip awscli-bundle.zip
               python3 ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
         - run:
             name: Get old stack workflow id
             command: |
+              bash
               export OldWorkflowID=$(cat ~/OldWorkflowID.txt)
               echo OldWorkflowID: "${OldWorkflowID}"
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               # Fetch the stack names          
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-              echo Stack names: "${STACKS[@]}"  
+                      --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+              echo Stack names: "${STACKS[@]}"
               
               if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
               then
